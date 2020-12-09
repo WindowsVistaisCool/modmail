@@ -74,11 +74,13 @@ async def close(ctx):
 	auth = False
 	usar = None
 	chan = None
+	tick = False
 	x = store('tickets.json', None, True)
 	for usr, chn in x.items():
 		if chn == str(ctx.channel.id):
 			if str(ctx.author.id) == usr:
 				auth = True
+				tick = True
 				usar = usr
 				chan = chn
 				break
@@ -87,9 +89,10 @@ async def close(ctx):
 				try:
 					new = ctx.channel.name.replace('modmail-', '')
 				except:
-					await ctx.send("Erorr!")
+					await ctx.send(f"Erorr: `Channel {ctx.channel.name} was not found!` ask `Exploded Birdo` for help")
 					return
 				usar = new
+				tick = True
 				break
 				
 	role = discord.utils.get(ctx.guild.roles, name='Trainee Mod')
@@ -108,7 +111,10 @@ async def close(ctx):
 	await ctx.send(embed=e)
 	await sleep(3)
 	chn = client.get_channel(int(chan))
-	await chn.delete(reason="Modmail ticket closed")
+	try:
+		await chn.delete(reason="Modmail ticket closed")
+	except Exception as e:
+		await ctx.send(f"Error: `{e}` ask `Exploded Birdo for help`. The modmail entry in the tickets file was deleted, so closing the channel will return an error. If you are an admin, please delete the channel.")
 	x.pop(usar)
 	with open('tickets.json', 'w') as v:
 		json.dump(x, v, indent=4)
